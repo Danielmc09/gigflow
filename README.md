@@ -82,6 +82,7 @@ Inside the project at the manage.py file run the following commands
 
 the first command runs the Tests declared in the tests folder, the second command displays the coverage
 ```
+#### - To create test data, you can create a super user and via django admin register some data
 
 ## API with Docker
 
@@ -90,7 +91,15 @@ already having the .env file configured, you just need to stand at the root of t
 
  - docker-compose up --build 
 
-and wait for the containers to deploy
+and wait for the containers to deploy, You can enter localhost:80 enter the connection data to pgadmin
+create a new server with the information from the example postgres image.
+
+- server: db_postgres
+- maintenance: root
+- user: root
+- password: root
+
+At the time of entering you will find the database created with the migrations already carried out
 
 ```
 
@@ -102,9 +111,20 @@ DATABASE_ENGINE=django.db.backends.postgresql_psycopg2
 DATABASE_NAME=root
 DATABASE_USER=root
 DATABASE_PASS=root
-DATABASE_HOST=postgres
+DATABASE_HOST=db_postgres
 DATABASE_PORT=5432
 
+```
+- To create information within docker, create a super user, enter the admin of
+Django and create some data, to be queried 
+```
+ docker exec -it <container_id> python manage.py createsuperuser
+```
+
+- To run the tests from the container and see the report, run the following commands 
+```
+ - docker exec -it <container_id> coverage run manage.py test
+ - docker exec -it <container_id> coverage report
 ```
 
 
