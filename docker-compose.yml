@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  db_postgres:
+    image: postgres:15
+    networks:
+      - gigflow
+    restart: always
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    environment:
+      - DATABASE_HOST=${DATABASE_HOST}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASS}
+      - POSTGRES_DB=${DATABASE_NAME}
+
+  pgadmin:
+    image: dpage/pgadmin4
+    networks:
+      - gigflow
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASS}
+      PGADMIN_SERVER_HOST: ${DATABASE_HOST}
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "80:80"
+    depends_on:
+      - db_postgres
+
+  web:
+    build: .
+    networks:
+      - gigflow
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - pgadmin
+      - db_postgres
+
+networks:
+  gigflow:
+
+volumes:
+  db_postgres:
+  pgadmin:
